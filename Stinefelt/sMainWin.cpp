@@ -27,15 +27,20 @@ void sMainWin::OnDownloadBtnClicked(wxCommandEvent& evt)
 
 void sMainWin::DownloadFile(LPCWSTR URL, LPCWSTR FileNameAndPath)
 {
+	// Lets get that progress dialog loaded as dialog
 	wxProgressDialog* dialog = new wxProgressDialog(wxT("Wait..."), wxT("Keep waiting..."), 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
+	// Lets get the download process started
 	DownloadProgress progress;
 	HRESULT hr = URLDownloadToFile(0, URL, FileNameAndPath, 0, static_cast<IBindStatusCallback*>(&progress));
 
+	// I don't know how to referece to &progress, but here goes an attempt.
 	for (int i = 0; i < progress.maxprogress; i++) {
 		wxMilliSleep(15);
 		if (i % 23) dialog->Update(i);
 	}
+	// Update the Progress Bar with the progress of the download?
 	dialog->Update(progress.progress);
+	// Let's clear this to keep mem happy
 	delete dialog;
 }
