@@ -11,36 +11,41 @@ sMainWin::sMainWin() : wxFrame(NULL, wxID_ANY, "Stinefelt - Testing Grounds", wx
 {
 	m_DownloadProgramBtn = new wxButton(this, 10001, "Download Putty", wxPoint(10, 10), wxSize(150, 50));
 	m_DownloadProgramBtn = new wxButton(this, 10001, "Dummy Button", wxPoint(170, 10), wxSize(150, 50));
+	m_LogListBox = new wxListBox(this, wxID_ANY, wxPoint(10, 70), wxSize(765, 300));
 
 	SetBackgroundColour(*wxBLUE);
 }
 
 sMainWin::~sMainWin()
-{
+{	
 	Destroy();
 }
 
 void sMainWin::OnDownloadBtnClicked(wxCommandEvent& evt)
-{
+{	
 	DownloadFile(PuttyDownloadURL, PuttyDownloadFileAndPath);
 }
 
 void sMainWin::DownloadFile(LPCWSTR URL, LPCWSTR FileNameAndPath)
-{
+{		
 	// Lets get that progress dialog loaded as dialog
 	wxProgressDialog* dialog = new wxProgressDialog(wxT("Wait..."), wxT("Keep waiting..."), 100, this, wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
 	// Lets get the download process started
 	DownloadProgress progress;
-	HRESULT hr = URLDownloadToFile(0, URL, FileNameAndPath, 0, static_cast<IBindStatusCallback*>(&progress));
+	IBindStatusCallback* callback = (IBindStatusCallback*)&progress;
+	HRESULT hr = URLDownloadToFile(0, URL, FileNameAndPath, NULL, static_cast<IBindStatusCallback*>(&progress));
+	
+	m_LogListBox->Append(std::to_string(progress.GetDownloadProgress()));
 
-	// I don't know how to referece to &progress, but here goes an attempt.
-	for (int i = 0; i < progress.maxprogress; i++) {
-		wxMilliSleep(15);
-		if (i % 23) dialog->Update(i);
+	// TODO: Impliment Threadding and Track Download Progress
+		
+	if (SUCCEEDED(hr))
+	{	
+		delete dialog;
 	}
-	// Update the Progress Bar with the progress of the download?
-	dialog->Update(progress.progress);
-	// Let's clear this to keep mem happy
-	delete dialog;
+	else
+	{
+		delete dialog;
+	}
 }
