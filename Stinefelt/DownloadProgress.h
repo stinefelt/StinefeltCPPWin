@@ -6,13 +6,10 @@
 
 class DownloadProgress : public IBindStatusCallback {
 public:
-  ULONG DProgress;
-  ULONG DProgressStart;
-  ULONG GetDownloadProgress() { return DProgress; }
-  ULONG GetDownloadStartProgress() { return DProgressStart; }
+  double DProgress;  
+  double GetDownloadProgress() { return DProgress; }  
 private:
-  void SetDownloadProgress(ULONG DProgress) { DProgress = this->DProgress; }
-  void SetDownloadStartProgress(ULONG DProgressStart) { DProgressStart = this->DProgressStart; }
+  void SetDownloadProgress(double DProgress) { DProgress = this->DProgress; }  
 public:
   HRESULT __stdcall QueryInterface(const IID&, void**) {
     return E_NOINTERFACE;
@@ -49,9 +46,10 @@ public:
     if (ulProgress != 0)
     {
       double* percentage = new double(ulProgress * 1.0 / ulProgressMax * 100); 
-      SetDownloadProgress((ULONG)*percentage);
+      SetDownloadProgress(*percentage);
       delete percentage;
       return S_OK;
     }
+    return S_FALSE;
   }
 };

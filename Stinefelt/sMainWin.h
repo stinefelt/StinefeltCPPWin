@@ -7,13 +7,15 @@ public:
 	sMainWin();
 	~sMainWin();
 
-	const LPCWSTR PuttyDownloadURL = L"http://ipv4.download.thinkbroadband.com/5MB.zip";
-	const LPCWSTR PuttyDownloadFileAndPath = L"C:/Stinefelt/1GB.zip";
+	const LPCWSTR TestDownloadURL = L"http://ipv4.download.thinkbroadband.com/512MB.zip";
+	const LPCWSTR TestDownloadFileAndPath = L"C:/Stinefelt/512MB.zip";
 
 	wxButton *m_DownloadProgramBtn = nullptr;
+	wxButton *m_DownloadTestBtn = nullptr;
 	wxListBox* m_LogListBox = nullptr;
 
 	void OnDownloadBtnClicked(wxCommandEvent& evt);
+	void OnTestBtnClicked(wxCommandEvent& evt);
 
 	wxDECLARE_EVENT_TABLE();
 
