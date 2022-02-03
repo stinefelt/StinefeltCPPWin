@@ -45,8 +45,8 @@ void sMainWin::StartDownloading(wxCommandEvent& WXUNUSED(event))
 
   //wxString URL = "http://ipv4.download.thinkbroadband.com/50MB.zip";
   // wxString URL = "http://ipv4.download.thinkbroadband.com/200MB.zip";
-  wxString URL = "http://ipv4.download.thinkbroadband.com/512MB.zip";
-  const wxString FileNameAndPath = "C:\\Stinefelt\\test.zip";
+  wxString URL = "http://ipv4.download.thinkbroadband.com/1GB.zip";
+  const wxString FileNameAndPath = "C:\\Stinefelt\\1GB.zip";
   wxRemove(FileNameAndPath);
 
   DownloadProgress progress;
