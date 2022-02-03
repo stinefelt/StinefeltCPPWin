@@ -7,19 +7,21 @@ public:
 	sMainWin();
 	~sMainWin();
 
-	const LPCWSTR TestDownloadURL = L"http://ipv4.download.thinkbroadband.com/512MB.zip";
-	const LPCWSTR TestDownloadFileAndPath = L"C:/Stinefelt/512MB.zip";
+	wxString TestDownloadURL = L"http://ipv4.download.thinkbroadband.com/512MB.zip";
+	wxString TestDownloadFileAndPath = L"C:/Stinefelt/512MB.zip";
 
 	wxButton *m_DownloadProgramBtn = nullptr;
 	wxButton *m_DownloadTestBtn = nullptr;
-	wxListBox* m_LogListBox = nullptr;
+	wxListBox *m_LogListBox = nullptr;
+	wxGauge *m_DownloadGuage = nullptr;
 
 	void OnDownloadBtnClicked(wxCommandEvent& evt);
 	void OnTestBtnClicked(wxCommandEvent& evt);
 
 	wxDECLARE_EVENT_TABLE();
 
-private:
-	void DownloadFile(LPCWSTR URL, LPCWSTR  FileNameAndPath);	
+private:		
+	void StartDownloading(wxCommandEvent& WXUNUSED(event));
+	void OnQuit(wxCommandEvent& WXUNUSED(event));
 };
 

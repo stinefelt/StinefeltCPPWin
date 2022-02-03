@@ -1,16 +1,17 @@
 #include <windows.h>
-#include <urlmon.h>
+//#include <wx/wx.h>
 #include <iostream>
 
 #pragma comment(lib, "urlmon.lib")
 
 class DownloadProgress : public IBindStatusCallback {
 public:
-  double DProgress;  
-  double GetDownloadProgress() { return DProgress; }  
-private:
-  void SetDownloadProgress(double DProgress) { DProgress = this->DProgress; }  
-public:
+  int progress = 0;
+  int filesize = 0;
+  int maxprogress = 0;
+  bool AbortDownload = false;
+  bool done = false;
+
   HRESULT __stdcall QueryInterface(const IID&, void**) {
     return E_NOINTERFACE;
   }
@@ -41,15 +42,25 @@ public:
   virtual HRESULT STDMETHODCALLTYPE OnObjectAvailable(REFIID riid, IUnknown* punk) {
     return E_NOTIMPL;
   }
+
   virtual HRESULT __stdcall OnProgress(ULONG ulProgress, ULONG ulProgressMax, ULONG ulStatusCode, LPCWSTR szStatusText)
-  { 
-    if (ulProgress != 0)
-    {
-      double* percentage = new double(ulProgress * 1.0 / ulProgressMax * 100); 
-      SetDownloadProgress(*percentage);
-      delete percentage;
-      return S_OK;
+  {
+    // TODO: Add a progress bar wxProgressDialog()???
+    //wxLogDebug("callback: %ld %ld", ulProgress, ulProgressMax);
+
+    progress = ulProgress;
+    maxprogress = ulProgressMax;
+    filesize = ulProgressMax;
+
+    if (AbortDownload) {
+      done = true;
+      return E_ABORT;
     }
-    return S_FALSE;
+
+    if (ulProgressMax > 0 && ulProgress == ulProgressMax) {
+      done = true;
+    }
+
+    return S_OK;
   }
 };
