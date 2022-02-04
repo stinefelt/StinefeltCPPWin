@@ -7,8 +7,10 @@ public:
 	sMainWin();
 	~sMainWin();
 
-	wxString TestDownloadURL = L"http://ipv4.download.thinkbroadband.com/512MB.zip";
-	wxString TestDownloadFileAndPath = L"C:/Stinefelt/512MB.zip";
+	wxString TestDownloadURL0 = L"http://ipv4.download.thinkbroadband.com/1GB.zip";
+	wxString TestDownloadFileAndPath0 = L"C:/Stinefelt/1GB.zip";
+	wxString TestDownloadURL1 = L"http://ipv4.download.thinkbroadband.com/512MB.zip";
+	wxString TestDownloadFileAndPath1 = L"C:/Stinefelt/512MB.zip";	
 
 	wxButton *m_DownloadProgramBtn = nullptr;
 	wxButton *m_DownloadTestBtn = nullptr;
@@ -23,5 +25,6 @@ public:
 private:		
 	void StartDownloading(wxCommandEvent& WXUNUSED(event));
 	void OnQuit(wxCommandEvent& WXUNUSED(event));
+	void DoThreadDownloadOperation(wxString& TestDownloadUrl, wxString& TestDownloadFileNameAndPath);	
 };
 

@@ -3,15 +3,16 @@
 #include <wx/progdlg.h>
 #include "DownloadProgress.h"
 #include <thread>
+#include <wx/filefn.h>
 
 wxBEGIN_EVENT_TABLE(sMainWin, wxFrame)
-EVT_BUTTON(10001, StartDownloading)
+EVT_BUTTON(10001, OnDownloadBtnClicked)
 EVT_BUTTON(10002, OnTestBtnClicked)
 wxEND_EVENT_TABLE()
 
 sMainWin::sMainWin() : wxFrame(NULL, wxID_ANY, "Stinefelt - Testing Grounds", wxPoint(30, 30), wxSize(800, 420), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER & ~wxMAXIMIZE_BOX)
 {
-	m_DownloadProgramBtn = new wxButton(this, 10001, "Download 100MB", wxPoint(10, 10), wxSize(150, 50));
+	m_DownloadProgramBtn = new wxButton(this, 10001, "Download Test Files", wxPoint(10, 10), wxSize(150, 50));
 	m_DownloadTestBtn = new wxButton(this, 10002, "Download Test", wxPoint(170, 10), wxSize(150, 50));
 	m_LogListBox = new wxListBox(this, wxID_ANY, wxPoint(10, 70), wxSize(765, 300));
 	
@@ -23,14 +24,24 @@ sMainWin::~sMainWin()
 	Destroy();
 }
 
-void sMainWin::OnDownloadBtnClicked(wxCommandEvent& evt)
+void sMainWin::OnDownloadBtnClicked(wxCommandEvent& WXUNUSED(event))
 {	
-  
+  DoThreadDownloadOperation(TestDownloadURL0, TestDownloadFileAndPath0);
+  DoThreadDownloadOperation(TestDownloadURL1, TestDownloadFileAndPath1);
 }
 
 void sMainWin::OnTestBtnClicked(wxCommandEvent& evt)
 {
-	m_LogListBox->Append("Test Button Clicked.");	
+  bool bFileExist = wxFileExists(TestDownloadFileAndPath0);
+  
+  if (bFileExist)
+  {
+    m_LogListBox->Append("Skipping Download File Exist");
+  }
+  else
+  {
+    m_LogListBox->Append("Download Files");
+  }
 }
 
 static void DownloadFile(const wxString& URL, const wxString& FileNameAndPath, DownloadProgress* progress)
@@ -38,30 +49,24 @@ static void DownloadFile(const wxString& URL, const wxString& FileNameAndPath, D
 	HRESULT hr = URLDownloadToFile(0, URL, FileNameAndPath, 0, static_cast<IBindStatusCallback*>(progress));
 }
 
-void sMainWin::StartDownloading(wxCommandEvent& WXUNUSED(event))
-{
-  wxProgressDialog progressDialog("Download", "Waiting for download to start...", 100, this, wxPD_CAN_ABORT);
+void sMainWin::DoThreadDownloadOperation(wxString &TestDownloadUrl, wxString &TestDownloadFileNameAndPath)
+{   
+  bool abort = false;
+  DownloadProgress progressDownload;
+  wxProgressDialog progressDialog("Downloading", "Please be patient...", 100, this, wxPD_CAN_ABORT);
   progressDialog.Show();
 
-  //wxString URL = "http://ipv4.download.thinkbroadband.com/50MB.zip";
-  // wxString URL = "http://ipv4.download.thinkbroadband.com/200MB.zip";
-  wxString URL = "http://ipv4.download.thinkbroadband.com/1GB.zip";
-  const wxString FileNameAndPath = "C:\\Stinefelt\\1GB.zip";
-  wxRemove(FileNameAndPath);
+  std::thread downloadThread(DownloadFile, TestDownloadUrl, TestDownloadFileNameAndPath, &progressDownload);
 
-  DownloadProgress progress;
-  std::thread downloadThread(DownloadFile, URL, FileNameAndPath, &progress);
-
-  bool abort = false;
-  while (!progress.done && !abort) {
-    if (progress.maxprogress > 0) {
-      double progressDouble = (double)progress.progress * 100.0 / progress.maxprogress;
+  while (!progressDownload.done && !abort) {
+    if (progressDownload.maxprogress > 0) {
+      double progressDouble = (double)progressDownload.progress * 100.0 / progressDownload.maxprogress;
       abort = !progressDialog.Update((int)progressDouble, wxString::Format("Download Progress: %.2f %%", progressDouble));
     }
     else {
       abort = !progressDialog.Pulse("Waiting for download to start...");
       if (abort) {
-        progress.AbortDownload = true;
+        progressDownload.AbortDownload = true;
       }
     }
     ::wxMilliSleep(200);
